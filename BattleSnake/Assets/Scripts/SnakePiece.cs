@@ -18,9 +18,27 @@ public class SnakePiece : MonoBehaviour {
                 nextPiece = next.GetComponent<SnakePiece>();
             }
         }
+        else
+        {
+            nextPiece = null;
+        }
     }
 
-    public void AddPiece()
+    public void DestroyPiece()
+    {
+        if (GetComponent<Snake>())
+        {
+            Destroy(transform.parent.gameObject);
+            return;
+        }
+        if (nextPiece)
+        {
+            nextPiece.DestroyPiece();
+        }
+        Destroy(gameObject);
+    }
+
+    public void AddPiece(Color color)
     {
         Vector3 newPosition = transform.position;
         if(currentDirection == Vector3.right)
@@ -39,7 +57,8 @@ public class SnakePiece : MonoBehaviour {
         {
             newPosition.y += 1.0f;
         }
-        Instantiate(Resources.Load("Piece") as GameObject, newPosition, transform.rotation, transform.parent);
+        GameObject piece = Instantiate(Resources.Load("Piece") as GameObject, newPosition, transform.rotation, transform.parent);
+        piece.GetComponent<SpriteRenderer>().color = color;
         setNextPiece();
     }
 
@@ -53,32 +72,27 @@ public class SnakePiece : MonoBehaviour {
 		
 	}
 
-    const int minX = -13;
-    const int maxX = 13;
-    const int minY = -6;
-    const int maxY = 4;
-
     public void MovePiece(Vector3 direction)
     {
         previousDirection = currentDirection;
         currentDirection = direction;
         transform.Translate(direction);
 
-        if(transform.position.y > maxY)
+        if(transform.position.y > Snake.maxY)
         {
-            transform.position = new Vector3(transform.position.x, minY, transform.position.z);
+            transform.position = new Vector3(transform.position.x, Snake.minY, transform.position.z);
         }
-        else if (transform.position.y < minY)
+        else if (transform.position.y < Snake.minY)
         {
-            transform.position = new Vector3(transform.position.x, maxY, transform.position.z);
+            transform.position = new Vector3(transform.position.x, Snake.maxY, transform.position.z);
         }
-        if (transform.position.x > maxX)
+        if (transform.position.x > Snake.maxX)
         {
-            transform.position = new Vector3(minX, transform.position.y, transform.position.z);
+            transform.position = new Vector3(Snake.minX, transform.position.y, transform.position.z);
         }
-        else if (transform.position.x < minX)
+        else if (transform.position.x < Snake.minX)
         {
-            transform.position = new Vector3(maxX, transform.position.y, transform.position.z);
+            transform.position = new Vector3(Snake.maxX, transform.position.y, transform.position.z);
         }
         if (nextPiece)
         {
